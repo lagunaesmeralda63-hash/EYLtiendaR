@@ -1,0 +1,2 @@
+INSERT INTO productos (nombre, descripcion, precio, stock, url_imagen) VALUES ('Vestido de Noche Elegante', 'Vestido fino largo para eventos', 1299.00, 8, 'https://images.unsplash.com/photo-1595777457583-95e059d581b8');
+INSERT INTO productos (nombre, descripcion, precio, stock, url_imagen) VALUES ('Chamarra de Piel Sintetica', 'Chamarra negra estilo biker', 899.00, 12, 'https://images.unsplash.com/photo-1551028719-00167b16eac5');

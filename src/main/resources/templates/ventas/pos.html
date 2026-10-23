@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punto de Venta - Boutique EYL</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --pink-melody: #ff87a9;
+            --pink-soft: #ffe3ec;
+            --pink-accent: #ff477e;
+            --pink-dark: #d6285a;
+            --cream-bg: #fff5f8;
+            --border-lace: #ffb3c6;
+        }
+
+        body {
+            font-family: 'Fredoka', cursive, sans-serif;
+            background-color: var(--cream-bg);
+            background-image:
+                    radial-gradient(var(--pink-melody) 1.5px, transparent 1.5px),
+                    radial-gradient(var(--pink-melody) 1.5px, var(--cream-bg) 1.5px);
+            background-size: 28px 28px;
+            background-position: 0 0, 14px 14px;
+            color: #52393e;
+            min-height: 100vh;
+        }
+
+        .card-kawaii {
+            border: 3px solid var(--border-lace);
+            border-radius: 30px;
+            background: #ffffff;
+            box-shadow: 0 10px 25px rgba(255, 115, 155, 0.2);
+        }
+
+        .form-control-kawaii, .form-select-kawaii {
+            border: 2px solid var(--border-lace);
+            border-radius: 20px;
+            padding: 0.75rem 1.2rem;
+            background-color: #fffafc;
+        }
+
+        .btn-kawaii {
+            background: linear-gradient(180deg, #ff8dae 0%, var(--pink-accent) 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 0.85rem 1.8rem;
+            font-weight: 700;
+            box-shadow: 0 6px 15px rgba(255, 71, 126, 0.35);
+        }
+
+        .btn-kawaii:hover {
+            color: white;
+        }
+    </style>
+</head>
+<body class="py-5">
+
+<div class="container" style="max-width: 650px;">
+    <div class="card card-kawaii p-4 p-md-5">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+            <div>
+                <h3 class="fw-bold m-0" style="color: var(--pink-dark);">🌸 Registrar Venta POS</h3>
+                <small class="text-muted">Vendedor ID: <b class="text-danger" th:text="${vendedorId}">VEND-001</b></small>
+            </div>
+            <a th:href="@{/}" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                <i class="fa-solid fa-house me-1"></i> Inicio
+            </a>
+        </div>
+
+        <form th:action="@{/venta-vendedor}" method="post">
+            <input type="hidden" name="idVendedor" th:value="${vendedorId}">
+
+            <div class="mb-3">
+                <label class="form-label fw-bold small ms-2">🛍️ Seleccionar Producto:</label>
+                <select name="productoId" class="form-select form-select-kawaii" required>
+                    <option th:each="p : ${productos}"
+                            th:value="${p.id}"
+                            th:text="${p.nombre} + ' - $' + ${p.precio} + ' (Stock: ' + ${p.stock} + ')'"
+                            th:disabled="${p.stock <= 0}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-bold small ms-2">👤 Nombre del Cliente (Opcional):</label>
+                <input type="text" name="clienteNombre" class="form-control form-control-kawaii" value="Cliente Mostrador" required>
+            </div>
+
+            <button type="submit" class="btn btn-kawaii w-100 py-3">
+                <i class="fa-solid fa-receipt me-2"></i> Registrar y Cobrar Venta
+            </button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

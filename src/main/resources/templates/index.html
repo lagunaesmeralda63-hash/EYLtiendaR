@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boutique EYL - My Melody World</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --pink-melody: #ff87a9;
+            --pink-soft: #ffe3ec;
+            --pink-accent: #ff477e;
+            --pink-dark: #d6285a;
+            --cream-bg: #fff5f8;
+            --border-lace: #ffb3c6;
+        }
+
+        body {
+            font-family: 'Fredoka', cursive, sans-serif;
+            background-color: var(--cream-bg);
+            background-image:
+                    radial-gradient(var(--pink-melody) 1.5px, transparent 1.5px),
+                    radial-gradient(var(--pink-melody) 1.5px, var(--cream-bg) 1.5px);
+            background-size: 28px 28px;
+            background-position: 0 0, 14px 14px;
+            color: #52393e;
+        }
+
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(255, 230, 239, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+
+        .login-card {
+            background: #ffffff;
+            border: 4px solid var(--border-lace);
+            border-radius: 35px;
+            box-shadow: 0 15px 35px rgba(255, 115, 155, 0.35);
+            max-width: 440px;
+            width: 100%;
+            padding: 2.5rem 2rem 2rem 2rem;
+            position: relative;
+            text-align: center;
+        }
+
+        .login-card::before {
+            content: "🎀 MY MELODY WORLD 🎀";
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #ffffff;
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--pink-accent);
+            padding: 4px 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(255, 71, 126, 0.4);
+            border: 2px solid #ffffff;
+        }
+
+        .pixel-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .form-control-kawaii, .form-select-kawaii {
+            border: 2px solid var(--border-lace);
+            border-radius: 20px;
+            padding: 0.75rem 1.2rem;
+            background-color: #fffafc;
+        }
+
+        .btn-kawaii {
+            background: linear-gradient(180deg, #ff8dae 0%, var(--pink-accent) 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 0.85rem 1.8rem;
+            font-weight: 700;
+            box-shadow: 0 6px 15px rgba(255, 71, 126, 0.35);
+        }
+
+        .main-header {
+            background: #ffffff;
+            border-radius: 30px;
+            border: 3px solid var(--border-lace);
+            padding: 1.2rem 2rem;
+        }
+
+        .nav-pills .nav-link {
+            border-radius: 20px;
+            color: var(--pink-dark);
+            background-color: #ffffff;
+            border: 2px solid var(--border-lace);
+            margin: 0 4px;
+            font-weight: 600;
+        }
+
+        .nav-pills .nav-link.active {
+            background: linear-gradient(180deg, #ff8dae 0%, var(--pink-accent) 100%);
+            color: white;
+            border-color: var(--pink-accent);
+        }
+
+        .card-kawaii {
+            border: 3px solid var(--pink-soft);
+            border-radius: 25px;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        #app-content {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<!-- OVERLAY DE LOGIN -->
+<div class="login-overlay" id="loginModal">
+    <div class="login-card">
+        <div class="mb-2 pixel-float">
+            <svg width="100" height="90" viewBox="0 0 24 22" fill="none" style="image-rendering: pixelated;">
+                <path d="M4 2H8V8H4V2Z" fill="#ff477e"/>
+                <path d="M16 2H20V8H16V2Z" fill="#ff477e"/>
+                <path d="M3 7H21V15H3V7Z" fill="#ff477e"/>
+                <path d="M6 10H18V18H6V10Z" fill="#ffffff"/>
+                <rect x="8" y="12" width="2" height="2" fill="#2b1810"/>
+                <rect x="14" y="12" width="2" height="2" fill="#2b1810"/>
+                <rect x="11" y="14" width="2" height="1" fill="#ffcc00"/>
+            </svg>
+        </div>
+
+        <h2 class="fw-bold" style="color: var(--pink-dark);">Boutique EYL</h2>
+        <p class="text-muted small mb-3">✨ Acceso al Sistema ✨</p>
+
+        <form id="loginForm" onsubmit="validarLogin(event)">
+            <div class="mb-3 text-start">
+                <label class="form-label fw-bold small ms-2">🌸 Ingresar como:</label>
+                <select id="userRole" class="form-select form-select-kawaii" onchange="toggleCamposLogin()" required>
+                    <option value="cliente">Cliente (Catálogo y Compras)</option>
+                    <option value="vendedor">Vendedor (Punto de Venta POS)</option>
+                    <option value="admin">Administrador</option>
+                </select>
+            </div>
+
+            <div class="mb-3 text-start d-none" id="groupVendedorId">
+                <label class="form-label fw-bold small ms-2">🆔 ID de Vendedor:</label>
+                <input type="text" id="vendedorIdInput" class="form-control form-control-kawaii" placeholder="Ej: VEND-001">
+            </div>
+
+            <div class="mb-3 text-start d-none" id="groupContrasena">
+                <label class="form-label fw-bold small ms-2">🔑 Contraseña EYL:</label>
+                <input type="password" id="passwordInput" class="form-control form-control-kawaii" placeholder="Ingresa contraseña">
+            </div>
+
+            <div id="loginError" class="alert alert-danger d-none py-2 text-center rounded-4 small mb-3">
+                Contraseña incorrecta. Intenta con <b>EYL</b>.
+            </div>
+
+            <button type="submit" class="btn btn-kawaii w-100 mt-2">
+                <i class="fa-solid fa-heart me-2"></i> Entrar
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- CONTENIDO DEL SISTEMA -->
+<div class="container py-4" id="app-content">
+
+    <div class="main-header d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <h1 class="h3 m-0 fw-bold" style="color: var(--pink-dark);">Boutique de Ropa - EYL</h1>
+            <span class="badge bg-danger bg-opacity-10 text-danger p-2 rounded-4" id="lblRolActual">🌸 Modo Cliente</span>
+        </div>
+        <button onclick="cerrarSesion()" class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold">
+            <i class="fa-solid fa-right-from-bracket me-1"></i> Salir
+        </button>
+    </div>
+
+    <ul class="nav nav-pills nav-fill mb-4" id="mainTabs" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active" id="catalogo-tab" data-bs-toggle="tab" data-bs-target="#catalogo" type="button" onclick="guardarPestana('catalogo-tab')">
+                <i class="fa-solid fa-bag-shopping me-1"></i> Catálogo
+            </button>
+        </li>
+        <li class="nav-item" id="tab-vendedor-li">
+            <button class="nav-link" id="vendedor-tab" data-bs-toggle="tab" data-bs-target="#vendedor" type="button" onclick="guardarPestana('vendedor-tab')">
+                <i class="fa-solid fa-cash-register me-1"></i> Módulo Vendedores (POS)
+            </button>
+        </li>
+        <li class="nav-item" id="tab-admin-li">
+            <button class="nav-link" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin" type="button" onclick="guardarPestana('admin-tab')">
+                <i class="fa-solid fa-user-gear me-1"></i> Panel Administrador
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="mapa-tab" data-bs-toggle="tab" data-bs-target="#mapa" type="button" onclick="guardarPestana('mapa-tab')">
+                <i class="fa-solid fa-location-dot me-1"></i> Ubicación
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="mainTabsContent">
+
+        <!-- CATÁLOGO -->
+        <div class="tab-pane fade show active" id="catalogo" role="tabpanel">
+            <div class="row" id="productosGrid">
+                <div class="col-md-4 mb-4" th:each="p : ${productos}">
+                    <div class="card card-kawaii h-100">
+                        <img th:src="${p.imagenNombre != null ? (p.imagenNombre.startsWith('http') ? p.imagenNombre : '/uploads/' + p.imagenNombre) : 'https://via.placeholder.com/300'}" class="card-img-top" style="height: 250px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold" th:text="${p.nombre}" style="color: var(--pink-dark);"></h5>
+                            <p class="card-text text-muted small" th:text="${p.descripcion}"></p>
+                            <h4 class="fw-bold my-2" style="color: var(--pink-accent);" th:text="'$' + ${p.precio}"></h4>
+                            <span class="badge" th:classappend="${p.stock > 0} ? 'bg-success' : 'bg-danger'" th:text="'Stock: ' + ${p.stock}"></span>
+                        </div>
+                        <div class="card-footer bg-white border-top-0 pb-3">
+                            <button type="button" class="btn btn-kawaii w-100" data-bs-toggle="modal" th:data-bs-target="'#modalCompra' + ${p.id}" th:disabled="${p.stock <= 0}">
+                                Comprar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Modal Compra -->
+                    <div class="modal fade" th:id="'modalCompra' + ${p.id}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content style-kawaii" style="border-radius: 25px;">
+                                <form th:action="@{/realizar-compra}" method="post">
+                                    <input type="hidden" name="productoId" th:value="${p.id}">
+                                    <div class="modal-header border-0 pb-0">
+                                        <h5 class="modal-title fw-bold" style="color: var(--pink-dark);">🌸 Pedir: <span th:text="${p.nombre}"></span></h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-2"><label class="form-label fw-bold">Nombre Completo:</label><input type="text" name="clienteNombre" class="form-control form-control-kawaii" required></div>
+                                        <div class="mb-2"><label class="form-label fw-bold">Dirección de Envío:</label><textarea name="clienteDireccion" class="form-control form-control-kawaii" rows="2" required></textarea></div>
+                                        <div class="mb-2"><label class="form-label fw-bold">Teléfono:</label><input type="text" name="clienteTelefono" class="form-control form-control-kawaii" required></div>
+                                    </div>
+                                    <div class="modal-footer border-0 pt-0">
+                                        <button type="submit" class="btn btn-kawaii w-100">Confirmar Compra</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- POS VENDEDOR -->
+        <div class="tab-pane fade" id="vendedor" role="tabpanel">
+            <div class="card card-kawaii p-4 col-md-8 mx-auto">
+                <h3 class="fw-bold text-center mb-3" style="color: var(--pink-dark);">Punto de Venta - Mostrador</h3>
+                <form th:action="@{/venta-vendedor}" method="post">
+                    <div class="mb-3"><label class="form-label fw-bold">ID Vendedor:</label><input type="text" id="posVendedorId" name="idVendedor" class="form-control form-control-kawaii" required></div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Producto:</label>
+                        <select name="productoId" class="form-select form-select-kawaii" required>
+                            <option th:each="prod : ${productos}" th:value="${prod.id}" th:text="${prod.nombre} + ' - $' + ${prod.precio} + ' (Stock: ' + ${prod.stock} + ')'"></option>
+                        </select>
+                    </div>
+                    <div class="mb-3"><label class="form-label fw-bold">Nombre del Cliente:</label><input type="text" name="clienteNombre" class="form-control form-control-kawaii" value="Cliente Local" required></div>
+                    <button type="submit" class="btn btn-kawaii w-100">Registrar Venta</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ADMINISTRADOR -->
+        <div class="tab-pane fade" id="admin" role="tabpanel">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card card-kawaii p-3">
+                        <h4 class="fw-bold mb-3" style="color: var(--pink-dark);">Agregar Producto</h4>
+                        <form th:action="@{/admin/guardar-producto}" th:object="${nuevoProducto}" method="post" enctype="multipart/form-data">
+                            <div class="mb-2"><label class="small fw-bold">Nombre:</label><input type="text" th:field="*{nombre}" class="form-control form-control-kawaii" required></div>
+                            <div class="mb-2"><label class="small fw-bold">Descripción:</label><input type="text" th:field="*{descripcion}" class="form-control form-control-kawaii" required></div>
+                            <div class="mb-2"><label class="small fw-bold">Precio ($):</label><input type="number" step="0.01" th:field="*{precio}" class="form-control form-control-kawaii" required></div>
+                            <div class="mb-2"><label class="small fw-bold">Stock:</label><input type="number" th:field="*{stock}" class="form-control form-control-kawaii" required></div>
+                            <div class="mb-3">
+                                <label class="small fw-bold">Foto del Producto:</label>
+                                <input type="file" name="archivoImagen" class="form-control form-control-kawaii" accept="image/*">
+                            </div>
+                            <button type="submit" class="btn btn-kawaii w-100">Guardar Producto</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="card card-kawaii p-3 mb-4">
+                        <h4 class="fw-bold mb-3" style="color: var(--pink-dark);">Pedidos Registrados</h4>
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm">
+                                <thead>
+                                <tr><th>ID</th><th>Cliente</th><th>Dirección</th><th>Total</th><th>Vendedor</th><th>Estado</th></tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="ped : ${pedidos}">
+                                    <td th:text="${ped.id}"></td>
+                                    <td th:text="${ped.clienteNombre}"></td>
+                                    <td th:text="${ped.clienteDireccion}"></td>
+                                    <td th:text="'$' + ${ped.total}"></td>
+                                    <td th:text="${ped.vendedorId}"></td>
+                                    <td><span class="badge bg-warning text-dark" th:text="${ped.estado}"></span></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card card-kawaii p-3">
+                        <h4 class="fw-bold mb-3" style="color: var(--pink-dark);">Inventario Actual</h4>
+                        <table class="table table-hover table-sm align-middle">
+                            <thead><tr><th>Producto</th><th>Precio</th><th>Stock</th><th>Acción</th></tr></thead>
+                            <tbody>
+                            <tr th:each="pr : ${productos}">
+                                <td th:text="${pr.nombre}"></td>
+                                <td th:text="'$' + ${pr.precio}"></td>
+                                <td th:text="${pr.stock}"></td>
+                                <td><a th:href="@{/admin/eliminar/{id}(id=${pr.id})}" class="btn btn-sm btn-outline-danger rounded-pill">Eliminar</a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- UBICACIÓN TIENDA -->
+        <div class="tab-pane fade" id="mapa" role="tabpanel">
+            <div class="card card-kawaii p-4 text-center">
+                <h3 class="fw-bold mb-2" style="color: var(--pink-dark);">Ubicación Tienda Física</h3>
+                <p class="text-muted">¡Visítanos para probarte la ropa en persona!</p>
+                <div class="ratio ratio-16x9 rounded-4 overflow-hidden">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.898622152643!2d-100.31611268439362!3d25.68661418367067!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x864ece618a8f1ffb%3A0x7d0267262ff054!2sMonterrey!5e0!3m2!1ses!2smx!4v1680000000000" allowfullscreen="" loading="lazy"></iframe>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Uso de localStorage para persistir la sesión y la pestaña activa permanentemente
+        const activeRole = localStorage.getItem('eyl_role');
+        const activeTab = localStorage.getItem('eyl_tab') || 'catalogo-tab';
+
+        if (activeRole) {
+            aplicarSesion(activeRole, localStorage.getItem('eyl_vendedorId'));
+            const tabBtn = document.getElementById(activeTab);
+            if (tabBtn) {
+                const tab = new bootstrap.Tab(tabBtn);
+                tab.show();
+            }
+        } else {
+            toggleCamposLogin();
+        }
+    });
+
+    function guardarPestana(tabId) {
+        localStorage.setItem('eyl_tab', tabId);
+    }
+
+    function toggleCamposLogin() {
+        const role = document.getElementById('userRole').value;
+        const groupVendedor = document.getElementById('groupVendedorId');
+        const groupPass = document.getElementById('groupContrasena');
+
+        if (role === 'cliente') {
+            groupVendedor.classList.add('d-none');
+            groupPass.classList.add('d-none');
+        } else if (role === 'vendedor') {
+            groupVendedor.classList.remove('d-none');
+            groupPass.classList.remove('d-none');
+        } else {
+            groupVendedor.classList.add('d-none');
+            groupPass.classList.remove('d-none');
+        }
+    }
+
+    function aplicarSesion(role, vendedorId) {
+        document.getElementById('loginModal').style.display = 'none';
+        document.getElementById('app-content').style.display = 'block';
+
+        const tabVendedorLi = document.getElementById('tab-vendedor-li');
+        const tabAdminLi = document.getElementById('tab-admin-li');
+        const lblRol = document.getElementById('lblRolActual');
+
+        if (role === 'cliente') {
+            tabVendedorLi.style.display = 'none';
+            tabAdminLi.style.display = 'none';
+            lblRol.innerText = '🌸 Modo Cliente';
+        } else {
+            tabVendedorLi.style.display = 'block';
+            tabAdminLi.style.display = 'block';
+
+            if (role === 'vendedor') {
+                lblRol.innerText = '💼 Modo Vendedor';
+                if (vendedorId) {
+                    document.getElementById('posVendedorId').value = vendedorId;
+                }
+            } else if (role === 'admin') {
+                lblRol.innerText = '👑 Modo Administrador';
+            }
+        }
+    }
+
+    function validarLogin(event) {
+        event.preventDefault();
+        const role = document.getElementById('userRole').value;
+        const password = document.getElementById('passwordInput').value;
+        const vendedorId = document.getElementById('vendedorIdInput').value;
+        const errorDiv = document.getElementById('loginError');
+
+        if (role === 'cliente') {
+            errorDiv.classList.add('d-none');
+            localStorage.setItem('eyl_role', 'cliente');
+            localStorage.setItem('eyl_tab', 'catalogo-tab');
+            aplicarSesion('cliente');
+            return;
+        }
+
+        if (password === 'EYL') {
+            errorDiv.classList.add('d-none');
+            localStorage.setItem('eyl_role', role);
+            if (vendedorId) localStorage.setItem('eyl_vendedorId', vendedorId);
+
+            const targetTab = role === 'vendedor' ? 'vendedor-tab' : 'admin-tab';
+            localStorage.setItem('eyl_tab', targetTab);
+
+            aplicarSesion(role, vendedorId);
+
+            const tab = new bootstrap.Tab(document.getElementById(targetTab));
+            tab.show();
+        } else {
+            errorDiv.classList.remove('d-none');
+        }
+    }
+
+    function cerrarSesion() {
+        localStorage.clear();
+        document.getElementById('passwordInput').value = '';
+        document.getElementById('app-content').style.display = 'none';
+        document.getElementById('loginModal').style.display = 'flex';
+    }
+</script>
+
+</body>
+</html>
